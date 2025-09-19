@@ -29,6 +29,7 @@ Infrastructure is managed with **Docker Compose**:
 ## 📂 Project Structure
 
 CDIA-XCI-project/
+│── common/ # Shared DTOs and utils
 │── ingestion-service/ # Event ingestion + PostgreSQL
 │── processing-service/ # Stream processing (Flink)
 │── search-service/ # Elasticsearch integration
