@@ -4,6 +4,7 @@ import com.github.NFMdev.cdia.common.dto.EventDto;
 import com.github.NFMdev.cdia.ingestion_service.mapper.EventMapper;
 import com.github.NFMdev.cdia.ingestion_service.model.event.EventEntity;
 import com.github.NFMdev.cdia.ingestion_service.repository.EventRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ public class EventService {
     @Autowired
     private EventMapper eventMapper;
 
+    @Transactional
     public EventDto saveEvent(EventDto eventDto) {
         EventEntity entity = eventMapper.toEntity(eventDto);
         EventEntity saved = eventRepository.save(entity);

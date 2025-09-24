@@ -4,7 +4,9 @@ import com.github.NFMdev.cdia.ingestion_service.model.source_system.SourceSystem
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface SourceSystemRepository extends JpaRepository<SourceSystemEntity, Long> {
-    SourceSystemEntity findByName(String name);
+    Optional<SourceSystemEntity> findByName(String name);
 }
