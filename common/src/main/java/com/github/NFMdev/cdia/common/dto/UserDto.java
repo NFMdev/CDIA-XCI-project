@@ -1,0 +1,11 @@
+package com.github.NFMdev.cdia.common.dto;
+
+import lombok.Data;
+
+@Data
+public class UserDto {
+    private Long id;
+    private String username;
+    private String email;
+    private String role;
+}
