@@ -33,6 +33,9 @@ public class AnomalyEntity {
     @Column(name = "confidence_score", precision = 5, scale = 2)
     private BigDecimal confidenceScore;
 
+    @Column
+    private String severity;
+
     private String description;
 
     @Override
