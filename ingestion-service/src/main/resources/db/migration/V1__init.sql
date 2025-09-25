@@ -61,6 +61,7 @@ CREATE TABLE anomalies (
     label_id INT REFERENCES anomaly_labels(id),
     detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     confidence_score NUMERIC(5,2),
+    severity VARCHAR(20),
     description TEXT
 );
 
