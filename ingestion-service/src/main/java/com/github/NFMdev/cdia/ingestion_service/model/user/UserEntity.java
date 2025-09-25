@@ -1,8 +1,7 @@
 package com.github.NFMdev.cdia.ingestion_service.model.user;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -10,8 +9,11 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@ToString(exclude = {"userEvents"})
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,4 +36,16 @@ public class UserEntity {
     
     @OneToMany(mappedBy = "user")
     private Set<UserEventEntity> userEvents = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserEntity)) return false;
+        return id != null && id.equals(((UserEntity) o).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
 }

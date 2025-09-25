@@ -17,7 +17,7 @@ public class EventController {
     private EventService eventService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventDto> getEvent(@PathVariable Long id) {
+    public ResponseEntity<EventDto> getEvent(@PathVariable(name = "id") Long id) {
         if (id != null) {
             try {
                 EventDto eventDto = eventService.getEventById(id);
@@ -56,7 +56,7 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteEvent(@PathVariable(name = "id") Long id) {
         try {
             eventService.deleteEvent(id);
             return ResponseEntity.noContent().build();

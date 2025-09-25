@@ -2,16 +2,18 @@ package com.github.NFMdev.cdia.ingestion_service.model.user;
 
 import com.github.NFMdev.cdia.ingestion_service.model.event.EventEntity;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 // Entity for storing manual validation by users
 
 @Entity
 @Table(name = "user_events")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @IdClass(UserEventId.class)
 public class UserEventEntity {
     @Id

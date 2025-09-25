@@ -2,15 +2,17 @@ package com.github.NFMdev.cdia.ingestion_service.model.logs;
 
 import com.github.NFMdev.cdia.ingestion_service.model.user.UserEntity;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "audit_logs")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@ToString(exclude = {"user"})
 public class AuditLogEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,4 +33,16 @@ public class AuditLogEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AuditLogEntity)) return false;
+        return id != null && id.equals(((AuditLogEntity) o).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
 }

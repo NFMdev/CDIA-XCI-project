@@ -4,8 +4,7 @@ import com.github.NFMdev.cdia.ingestion_service.model.anomaly.AnomalyEntity;
 import com.github.NFMdev.cdia.ingestion_service.model.source_system.SourceSystemEntity;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
@@ -13,8 +12,11 @@ import java.util.*;
 
 @Entity
 @Table(name = "events")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@ToString(exclude = {"images", "metadata", "anomalies"})
 public class EventEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,8 +29,8 @@ public class EventEntity {
     private String description;
     private String location;
     
-    @Type(JsonType.class)
-    private Map<String, Object> payload;
+//    @Column(columnDefinition = "json")
+//    private Map<String, Object> payload;
     
     @Column(length = 20)
     private String status = "INGESTED";

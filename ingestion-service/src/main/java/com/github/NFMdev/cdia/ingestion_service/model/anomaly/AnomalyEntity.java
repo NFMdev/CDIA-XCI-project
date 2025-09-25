@@ -2,16 +2,18 @@ package com.github.NFMdev.cdia.ingestion_service.model.anomaly;
 
 import com.github.NFMdev.cdia.ingestion_service.model.event.EventEntity;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "anomalies")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@ToString(exclude = {"event", "label"})
 public class AnomalyEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,5 +34,17 @@ public class AnomalyEntity {
     private BigDecimal confidenceScore;
 
     private String description;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AnomalyEntity)) return false;
+        return id != null && id.equals(((AnomalyEntity) o).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
 
 }

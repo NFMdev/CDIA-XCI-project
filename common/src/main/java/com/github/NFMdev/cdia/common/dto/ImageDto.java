@@ -6,6 +6,4 @@ import lombok.Data;
 public class ImageDto {
     private Long id;
     private String url;
-
-    private Long eventId;
 }

@@ -1,13 +1,15 @@
 package com.github.NFMdev.cdia.ingestion_service.model.event;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "event_metadata")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@ToString(exclude = {"event"})
 public class EventMetadataEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +24,16 @@ public class EventMetadataEntity {
     
     @Column(name = "field_value")
     private String value;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EventMetadataEntity)) return false;
+        return id != null && id.equals(((EventMetadataEntity) o).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
 }

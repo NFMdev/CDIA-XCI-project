@@ -27,7 +27,7 @@ CREATE TABLE events (
     source_id INT REFERENCES source_systems(id) ON DELETE SET NULL,
     description TEXT,
     location VARCHAR(255),
-    payload JSONB,
+--    payload JSONB,
     status VARCHAR(20) DEFAULT 'INGESTED',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
