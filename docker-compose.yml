@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   postgres:
     image: postgres:17
@@ -13,12 +12,66 @@ services:
       - ./data/postgres:/var/lib/postgresql/data
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
-    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
+    container_name: cdia-elasticsearch
     environment:
       discovery.type: single-node
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
+      - "9300:9300"
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
+
+  ingestion-service:
+    image: openjdk:21-jdk
+    container_name: ingestion-service
+    depends_on:
+      - postgres
+      - elasticsearch
+    ports:
+      - "8080:8080"
+    working_dir: /app
+    command: [ "java", "-jar", "/app/ingestion-service.jar" ]
+    volumes:
+      - ../ingestion-service/target/ingestion-service.jar:/app/ingestion-service.jar
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/crime_analytics
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+
+  flink-jobmanager:
+    image: flink:1.20-scala_2.12-java17
+    container_name: flink-jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    ports:
+      - "8081:8081"
+      - "6123:6123"  # RPC
+    command: jobmanager
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081" ]
+      interval: 5s
+      retries: 20
+
+  flink-taskmanager:
+      image: flink:1.20-scala_2.12-java17
+      container_name: flink-taskmanager
+      depends_on:
+        - flink-jobmanager
+      environment:
+        - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      command: taskmanager
+
+#  processing-service:
+#    build: ./processing-service
+#    container_name: processing-service
+#    depends_on:
+#      flink-jobmanager:
+#        condition: service_healthy
+#      flink-taskmanager:
+#        condition: service_started
+#    environment:
+#      FLINK_JOBMANAGER_HOST: flink-jobmanager
+#      FLINK_JOBMANAGER_RPC_PORT: 6123
