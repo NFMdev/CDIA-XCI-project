@@ -23,23 +23,23 @@ services:
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
 
-  ingestion-service:
-    image: openjdk:21-jdk
-    container_name: ingestion-service
-    depends_on:
-      - postgres
-      - elasticsearch
-    ports:
-      - "8080:8080"
-    working_dir: /app
-    command: [ "java", "-jar", "/app/ingestion-service.jar" ]
-    volumes:
-      - ../ingestion-service/target/ingestion-service.jar:/app/ingestion-service.jar
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/crime_analytics
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: admin
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+#  ingestion-service:
+#    image: openjdk:21-jdk
+#    container_name: ingestion-service
+#    depends_on:
+#      - postgres
+#      - elasticsearch
+#    ports:
+#      - "8080:8080"
+#    working_dir: /app
+#    command: [ "java", "-jar", "/app/ingestion-service.jar" ]
+#    volumes:
+#      - ../ingestion-service/target/ingestion-service.jar:/app/ingestion-service.jar
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/crime_analytics
+#      SPRING_DATASOURCE_USERNAME: admin
+#      SPRING_DATASOURCE_PASSWORD: admin
+#      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
 
   flink-jobmanager:
     image: flink:1.20-scala_2.12-java17

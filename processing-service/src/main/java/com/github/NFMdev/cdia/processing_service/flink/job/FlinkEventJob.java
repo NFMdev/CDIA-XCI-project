@@ -1,5 +1,6 @@
-package com.github.NFMdev.cdia.processing_service.flink;
+package com.github.NFMdev.cdia.processing_service.flink.job;
 
+import com.github.NFMdev.cdia.processing_service.flink.data.Event;
 import com.github.NFMdev.cdia.processing_service.flink.data.EventAggregate;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
@@ -22,7 +23,7 @@ public class FlinkEventJob {
 
         // JDBC source
         JdbcSource<Event> jdbcSource = JdbcSource.<Event>builder()
-                .setSql("SELECT id, description, location, source_id FROM events")
+                .setSql("SELECT id, description, location, source_id, created_at FROM events")
                 .setDriverName("org.postgresql.Driver")
                 .setDBUrl("jdbc:postgresql://postgres:5432/crime_analytics")
                 .setUsername("admin")
@@ -32,7 +33,8 @@ public class FlinkEventJob {
                         rs.getLong("id"),
                         rs.getString("description"),
                         rs.getString("location"),
-                        rs.getLong("source_id")))
+                        rs.getLong("source_id"),
+                        rs.getTimestamp("created_at")))
                 .build();
 
         DataStream<Event> stream = env.fromSource(
@@ -72,21 +74,5 @@ public class FlinkEventJob {
         aggregates.sinkTo(sink);
 
         env.execute("Flink Event Job");
-    }
-
-    static class Event {
-        public Long id;
-        public String description;
-        public String location;
-        public Long sourceId;
-
-        public Event() {}
-
-        public Event(Long id, String description, String location, Long sourceId) {
-            this.id = id;
-            this.description = description;
-            this.location = location;
-            this.sourceId = sourceId;
-        }
     }
 }
