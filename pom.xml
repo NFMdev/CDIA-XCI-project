@@ -13,6 +13,7 @@
 		<module>ingestion-service</module>
 		<module>processing-service</module>
 		<module>reports-service</module>
+		<module>search-service</module>
 	</modules>
 
 	<properties>
@@ -74,13 +75,6 @@
 				<artifactId>lombok</artifactId>
 				<version>${lombok.version}</version>
 				<scope>provided</scope>
-			</dependency>
-
-			<!-- Elasticsearch client -->
-			<dependency>
-				<groupId>co.elastic.clients</groupId>
-				<artifactId>elasticsearch-java</artifactId>
-				<version>8.13.2</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

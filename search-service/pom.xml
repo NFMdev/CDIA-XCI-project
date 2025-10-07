@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.github.NFMdev.cdia</groupId>
 		<artifactId>CDIA-XCI-project</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.6-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>search-service</artifactId>
@@ -14,9 +14,52 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
+		<!-- Spring Boot -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- Elasticsearch -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+		</dependency>
+
+		<!-- Jackson for JSON mapping -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+		<!-- Lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+
+		<!-- Mapstruct -->
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct-processor</artifactId>
+		</dependency>
+
+		<!-- Modules -->
+		<dependency>
+			<groupId>com.github.NFMdev.cdia</groupId>
+			<artifactId>ingestion-service</artifactId>
+			<version>0.0.6-SNAPSHOT</version>
+		</dependency>
+
+		<!-- Testing -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
