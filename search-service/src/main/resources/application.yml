@@ -1,15 +1,22 @@
 server:
-  port: 8083
+  port: 8085
 
 spring:
-  application:
-    name: search-service
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true
 
   elasticsearch:
     uris: http://localhost:9200
+    username: elastic
+    password: test
+    connection-timeout: 5s
+    socket-timeout: 30s
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
+logging:
+  level:
+    org.springframework.data.elasticsearch: INFO
+    co.elastic.clients: WARN
+    org.springframework.data.elasticsearch.core: DEBUG
+    org.springframework.data.elasticsearch.repository: DEBUG

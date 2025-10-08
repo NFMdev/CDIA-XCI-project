@@ -1,13 +1,14 @@
 package com.github.NFMdev.cdia.processing_service.flink.function;
 
-import com.github.NFMdev.cdia.processing_service.flink.data.Event;
-import com.github.NFMdev.cdia.processing_service.flink.data.EventAnomaly;
+import com.github.NFMdev.cdia.processing_service.flink.model.Event;
+import com.github.NFMdev.cdia.processing_service.flink.model.EventAnomaly;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.UUID;
 
 public class AnomalyDetectionFunction extends ProcessWindowFunction<Event, EventAnomaly, String, TimeWindow> {
     @Override
@@ -17,6 +18,7 @@ public class AnomalyDetectionFunction extends ProcessWindowFunction<Event, Event
 
         if (count > 10) {
             out.collect(new EventAnomaly(
+                    UUID.randomUUID(),
                     location,
                     count,
                     new Timestamp(context.window().getStart()),

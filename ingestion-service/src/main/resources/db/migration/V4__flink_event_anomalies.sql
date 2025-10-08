@@ -2,7 +2,7 @@
 -- Flink event anomalies detection
 
 CREATE TABLE event_anomalies (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
     location VARCHAR(255) NOT NULL,
     event_count INT NOT NULL,
     window_start TIMESTAMP NOT NULL,

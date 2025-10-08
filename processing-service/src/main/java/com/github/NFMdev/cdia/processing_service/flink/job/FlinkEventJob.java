@@ -1,7 +1,7 @@
 package com.github.NFMdev.cdia.processing_service.flink.job;
 
-import com.github.NFMdev.cdia.processing_service.flink.data.Event;
-import com.github.NFMdev.cdia.processing_service.flink.data.EventAggregate;
+import com.github.NFMdev.cdia.processing_service.flink.model.Event;
+import com.github.NFMdev.cdia.processing_service.flink.model.EventAggregate;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
 import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
