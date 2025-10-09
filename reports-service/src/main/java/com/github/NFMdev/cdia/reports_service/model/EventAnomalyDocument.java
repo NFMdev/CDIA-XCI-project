@@ -1,4 +1,4 @@
-package com.github.NFMdev.cdia.search_service.model;
+package com.github.NFMdev.cdia.reports_service.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

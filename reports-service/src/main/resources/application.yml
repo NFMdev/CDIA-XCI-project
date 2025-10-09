@@ -8,6 +8,26 @@ spring:
   thymeleaf:
     cache: false
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/crime_analytics
+    username: admin
+    password: admin
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  elasticsearch:
+    host: http://elasticsearch:9200
+    username: elastic
+    password: test
+
 management:
   endpoints:
     web:
