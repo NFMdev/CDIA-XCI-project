@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Crime Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f5f7;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1f2937;
+            color: white;
+            padding: 1.2rem 2rem;
+            text-align: center;
+        }
+        .charts {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 500px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Crime Analytics Dashboard</h1>
+</header>
+
+<div class="charts">
+    <div class="chart-container">
+        <h2>Anomalies by Location</h2>
+        <canvas id="anomalyChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <h2>Anomalies by Severity</h2>
+        <canvas id="severityChart"></canvas>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const locations = [[${locations}]];
+    const eventCounts = [[${eventCounts}]];
+    const severities = [[${severities}]];
+    const severityCounts = [[${severityCounts}]];
+
+    // --- Bar Chart (Anomalies by Location)
+    const ctx1 = document.getElementById('anomalyChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: locations,
+            datasets: [{
+                label: 'Event Count',
+                data: eventCounts,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // --- Pie Chart (Anomalies by Severity)
+    const ctx2 = document.getElementById('severityChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: severities,
+            datasets: [{
+                label: 'Anomaly Severity',
+                data: severityCounts,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(255, 205, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 205, 86, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+</script>
+</body>
+</html>
