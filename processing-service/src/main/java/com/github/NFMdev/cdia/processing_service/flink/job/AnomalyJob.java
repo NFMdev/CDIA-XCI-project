@@ -1,83 +1,67 @@
 package com.github.NFMdev.cdia.processing_service.flink.job;
 
-import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
-import co.elastic.clients.elasticsearch.core.bulk.BulkOperationBuilders;
-import co.elastic.clients.elasticsearch.core.bulk.BulkOperationVariant;
 import co.elastic.clients.elasticsearch.core.bulk.IndexOperation;
+import com.github.NFMdev.cdia.processing_service.flink.deserializer.EventDebeziumDeserializationSchema;
 import com.github.NFMdev.cdia.processing_service.flink.model.Event;
 import com.github.NFMdev.cdia.processing_service.flink.model.EventAnomaly;
 import com.github.NFMdev.cdia.processing_service.flink.function.AnomalyDetectionFunction;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.cdc.connectors.base.source.jdbc.JdbcIncrementalSource;
+import org.apache.flink.cdc.connectors.postgres.source.PostgresSourceBuilder;
+import org.apache.flink.cdc.debezium.DebeziumDeserializationSchema;
 import org.apache.flink.connector.elasticsearch.sink.Elasticsearch8AsyncSink;
 import org.apache.flink.connector.elasticsearch.sink.Elasticsearch8AsyncSinkBuilder;
-import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
-import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
-import org.apache.flink.connector.jdbc.core.datastream.sink.JdbcSink;
-import org.apache.flink.connector.jdbc.core.datastream.source.JdbcSource;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.http.HttpHost;
+
+import java.sql.Timestamp;
 import java.time.Duration;
-import java.util.Map;
+import java.time.Instant;
 
 public class AnomalyJob {
 
     public static void main(String[] args) throws Exception {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
 
-        JdbcSource<Event> jdbcSource = JdbcSource.<Event>builder()
-                .setSql("SELECT id, description, location, source_id, created_at FROM events")
-                .setDriverName("org.postgresql.Driver")
-                .setDBUrl("jdbc:postgresql://postgres:5432/crime_analytics")
-                .setUsername("admin")
-                .setPassword("admin")
-                .setTypeInformation(TypeInformation.of(Event.class))
-                .setResultExtractor(rs -> new Event(
-                        rs.getLong("id"),
-                        rs.getString("description"),
-                        rs.getString("location"),
-                        rs.getLong("source_id"),
-                        rs.getTimestamp("created_at")))
+        // Custom deserializer for CDC events
+        DebeziumDeserializationSchema<Event> deserializer = new EventDebeziumDeserializationSchema();
+
+        // CDC source
+        JdbcIncrementalSource<Event> postgresSource = PostgresSourceBuilder.PostgresIncrementalSource.<Event>builder()
+                .hostname("localhost")
+                .port(5432)
+                .database("crime_analytics")
+                .schemaList("public")
+                .tableList("public.events")
+                .username("admin")
+                .password("admin")
+                .slotName("flink")
+                .decodingPluginName("pgoutput")
+                .deserializer(deserializer)
                 .build();
 
-        DataStream<Event> events = env.fromSource(
-                jdbcSource,
+        // CDC stream from Postgres, uses created_at as watermark
+        DataStream<Event> cdcEventsStream = env.fromSource(
+                postgresSource,
                 WatermarkStrategy.<Event>forMonotonousTimestamps()
-                        .withTimestampAssigner((event, ts) -> event.getCreatedAt().toInstant().toEpochMilli()),
-                "events"
-        );
+                        .withTimestampAssigner((event, l) -> event.getCreatedAt().getTime()),
+                "PostgresCDC"
+        ).returns(Event.class);
 
-        DataStream<EventAnomaly> anomalies = events.keyBy(Event::getLocation)
+
+        // Anomaly detection and parser stream with a 1-minute window
+        DataStream<EventAnomaly> anomalies = cdcEventsStream
+                .keyBy(Event::getLocation)
                 .window(TumblingEventTimeWindows.of(Duration.ofMinutes(1)))
                 .process(new AnomalyDetectionFunction());
 
-        anomalies.sinkTo(JdbcSink.<EventAnomaly>builder()
-                .withQueryStatement(
-                        "INSERT INTO event_anomalies(id, location, event_count, window_start, window_end, " +
-                                "detected_at, rule, severity, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        (JdbcStatementBuilder<EventAnomaly>) (stmt, anomaly) -> {
-                            stmt.setObject(1, anomaly.getId());
-                            stmt.setString(2, anomaly.getLocation());
-                            stmt.setLong(3, anomaly.eventCount);
-                            stmt.setTimestamp(4, anomaly.getWindowStart());
-                            stmt.setTimestamp(5, anomaly.getWindowEnd());
-                            stmt.setTimestamp(6, anomaly.getDetectedAt());
-                            stmt.setString(7, anomaly.getRule());
-                            stmt.setString(8, anomaly.getSeverity());
-                            stmt.setString(9, anomaly.getDescription());
-                        }).buildAtLeastOnce(
-                        new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
-                                .withUrl("jdbc:postgresql://postgres:5432/crime_analytics")
-                                .withDriverName("org.postgresql.Driver")
-                                .withUsername("admin")
-                                .withPassword("admin")
-                                .build()
-                ));
 
+        // ES sink
         Elasticsearch8AsyncSink<EventAnomaly> sink = Elasticsearch8AsyncSinkBuilder.<EventAnomaly>builder()
-                .setHosts(HttpHost.create("http://elasticsearch:9200"))
+                .setHosts(HttpHost.create("http://localhost:9200"))
                 .setUsername("elastic")
                 .setPassword("test")
                 .setElementConverter(

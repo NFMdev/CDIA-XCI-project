@@ -42,7 +42,7 @@ public class SearchController {
 
     @DeleteMapping("/events")
     public void deleteAllEvents() {
-        searchService.deleteAllEvents();
+        searchService.deleteAllAnomalies();
     }
 
     @GetMapping("/anomalies")
@@ -52,6 +52,6 @@ public class SearchController {
 
     @DeleteMapping("/anomalies")
     public void deleteAllAnomalies() {
-        searchService.deleteAllEvents();
+        searchService.deleteAllAnomalies();
     }
 }
