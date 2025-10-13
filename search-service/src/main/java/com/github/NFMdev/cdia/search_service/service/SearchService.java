@@ -38,8 +38,8 @@ public class SearchService {
         return eventDocumentRepository.findAll();
     }
 
-    public void deleteAllEvents() {
-        eventDocumentRepository.deleteAll();
+    public void deleteAllAnomalies() {
+        eventAnomalyRepository.deleteAll();
     }
 
     public Iterable<EventAnomalyDocument> findAllAnomalies() { return eventAnomalyRepository.findAll(); }
