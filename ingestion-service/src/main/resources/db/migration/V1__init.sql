@@ -29,7 +29,7 @@ CREATE TABLE events (
     location VARCHAR(255),
 --    payload JSONB,
     status VARCHAR(20) DEFAULT 'INGESTED',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- EVENT IMAGES

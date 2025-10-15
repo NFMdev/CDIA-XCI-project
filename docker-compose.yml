@@ -1,3 +1,11 @@
+networks:
+  cdia-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  elastic-data:
+
 services:
   postgres:
     image: postgres:17
@@ -17,10 +25,16 @@ services:
       - "-c"
       - "max_replication_slots=10"
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
-      - ./initdb:/docker-entrypoint-initdb.d
+      - postgres-data:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.ddocke
+    networks:
+      - cdia-net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d crime_analytics" ]
+      interval: 5s
+      retries: 20
 
-  elasticsearch:
+  cdia-elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
     container_name: cdia-elasticsearch
     environment:
@@ -35,24 +49,68 @@ services:
       - "9300:9300"
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
+    networks:
+      - cdia-net
+    healthcheck:
+      test: [ "CMD", "curl", "-u", "elastic:test", "-f", "http://localhost:9200" ]
+      interval: 10s
+      retries: 20
 
-#  ingestion-service:
-#    image: openjdk:21-jdk
-#    container_name: ingestion-service
-#    depends_on:
-#      - postgres
-#      - elasticsearch
-#    ports:
-#      - "8080:8080"
-#    working_dir: /app
-#    command: [ "java", "-jar", "/app/ingestion-service.jar" ]
-#    volumes:
-#      - ../ingestion-service/target/ingestion-service.jar:/app/ingestion-service.jar
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/crime_analytics
-#      SPRING_DATASOURCE_USERNAME: admin
-#      SPRING_DATASOURCE_PASSWORD: admin
-#      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+  ingestion-service:
+    image: openjdk:21-jdk
+    container_name: ingestion-service
+    depends_on:
+      - postgres
+      - cdia-elasticsearch
+    ports:
+      - "8080:8080"
+    working_dir: /app
+    command: [ "java", "-jar", "/app/ingestion-service-exec.jar" ]
+    volumes:
+      - ./ingestion-service/target/ingestion-service-exec.jar:/app/ingestion-service-exec.jar
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/crime_analytics
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      ELASTICSEARCH_HOSTS: http://cdia-elasticsearch:9200
+    networks:
+      - cdia-net
+
+  search-service:
+    image: openjdk:21-jdk
+    container_name: search-service
+    depends_on:
+      cdia-elasticsearch:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    working_dir: /app
+    command: [ "java", "-jar", "/app/search-service.jar" ]
+    volumes:
+      - ./search-service/target/search-service.jar:/app/search-service.jar
+    environment:
+      ELASTICSEARCH_HOSTS: http://cdia-elasticsearch:9200
+      ELASTICSEARCH_DATASOURCE_USERNAME: elastic
+      ELASTICSEARCH_DATASOURCE_PASSWORD: test
+    networks:
+      - cdia-net
+
+  reports-service:
+    image: openjdk:21-jdk
+    container_name: reports-service
+    depends_on:
+      cdia-elasticsearch:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8084:8084"
+    working_dir: /app
+    command: [ "java", "-jar", "/app/reports-service.jar" ]
+    volumes:
+      - ./reports-service/target/reports-service.jar:/app/reports-service.jar
+    networks:
+      - cdia-net
 
   flink-jobmanager:
     image: flink:1.20-scala_2.12-java17
@@ -67,6 +125,10 @@ services:
       test: [ "CMD", "curl", "-f", "http://localhost:8081" ]
       interval: 5s
       retries: 20
+    volumes:
+      - ./processing-service/target/processing-service.jar:/opt/flink/usrlib/processing-service.jar
+    networks:
+      - cdia-net
 
   flink-taskmanager:
       image: flink:1.20-scala_2.12-java17
@@ -76,15 +138,5 @@ services:
       environment:
         - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
       command: taskmanager
-
-#  processing-service:
-#    build: ./processing-service
-#    container_name: processing-service
-#    depends_on:
-#      flink-jobmanager:
-#        condition: service_healthy
-#      flink-taskmanager:
-#        condition: service_started
-#    environment:
-#      FLINK_JOBMANAGER_HOST: flink-jobmanager
-#      FLINK_JOBMANAGER_RPC_PORT: 6123
+      networks:
+        - cdia-net
