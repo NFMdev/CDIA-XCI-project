@@ -23,48 +23,55 @@ VALUES
     ('VANDALISM', 'Property damage detected');
 
 -- 4. Events
-INSERT INTO events (created_at, source_id, description)
+INSERT INTO events (source_id, description, location)
 VALUES
-    ('2025-09-24 10:00:00',
-        (SELECT id FROM source_systems WHERE name = 'CCTV-NorthGate'),
-        'Unauthorized access detected'),
-    ('2025-09-24 10:05:00',
-        (SELECT id FROM source_systems WHERE name = 'MobileApp'),
-        'Fire reported via mobile app');
-
--- 5. Anomalies
-INSERT INTO anomalies (event_id, label_id, detected_at, description, confidence_score, severity)
-VALUES
-    (
-        (SELECT id FROM events WHERE created_at = '2025-09-24 10:00:00'),
-        (SELECT id FROM anomaly_labels WHERE code = 'UNAUTHORIZED_ACCESS'),
-        '2025-09-24 10:00:00',
-        'Unauthorized access attempt at north gate',
-        99.9,
-        'HIGH'
+    ((SELECT id FROM source_systems WHERE name = 'CCTV-NorthGate'),
+        'Unauthorized access detected', 'Aalborg'
     ),
-    (
-        (SELECT id FROM events WHERE created_at = '2025-09-24 10:05:00'),
-        (SELECT id FROM anomaly_labels WHERE code = 'FIRE_DETECTED'),
-        '2025-09-24 10:05:00',
-        'Fire reported via mobile app',
-        85.0,
-        'CRITICAL'
+    ((SELECT id FROM source_systems WHERE name = 'MobileApp'),
+        'Fire reported via mobile app', 'Aalborg'
+    ),
+    ((SELECT id FROM source_systems WHERE name = 'MobileApp'),
+        'Fire reported via mobile app', 'Aalborg'
+    ),
+    ((SELECT id FROM source_systems WHERE name = 'MobileApp'),
+        'Fire reported via mobile app', 'Aalborg'
+    ),
+    ((SELECT id FROM source_systems WHERE name = 'CCTV-NorthGate'),
+        'Unauthorized access detected', 'Aalborg'
+    ),
+    ((SELECT id FROM source_systems WHERE name = 'MobileApp'),
+        'Fire reported via mobile app', 'Aalborg'
+    ),
+    ((SELECT id FROM source_systems WHERE name = 'MobileApp'),
+        'Fire reported via mobile app', 'Aalborg'
+    ),
+    ((SELECT id FROM source_systems WHERE name = 'MobileApp'),
+        'Fire reported via mobile app', 'Aalborg'
+    ),
+    ((SELECT id FROM source_systems WHERE name = 'MobileApp'),
+        'Fire reported via mobile app', 'Aalborg'
+    ),
+    ((SELECT id FROM source_systems WHERE name = 'MobileApp'),
+        'Fire reported via mobile app', 'Aalborg'
+    ),
+    ((SELECT id FROM source_systems WHERE name = 'MobileApp'),
+        'Fire reported via mobile app', 'Aalborg'
     );
 
--- 6. Event Images
+-- 5. Event Images
 INSERT INTO event_images (event_id, url)
 VALUES
     (
-        (SELECT id FROM events WHERE created_at = '2025-09-24 10:00:00'),
+        1,
         'https://example.com/imgs/event1.jpg'
     ),
     (
-        (SELECT id FROM events WHERE created_at = '2025-09-24 10:05:00'),
+        1,
         'https://example.com/imgs/event2.jpg'
     );
 
--- 7. Audit Logs
+-- 6. Audit Logs
 INSERT INTO audit_logs (user_id, operation, entity_type, entity_id, performed_at)
 VALUES
     (

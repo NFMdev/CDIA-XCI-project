@@ -83,6 +83,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>processing-service</finalName>
 		<plugins>
             <!-- Agregar antes del maven-shade-plugin -->
             <plugin>
@@ -106,7 +107,7 @@
 						<configuration>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>com.github.NFMdev.cdia.processing_service.flink.job.FlinkEventJob</mainClass>
+									<mainClass>com.github.NFMdev.cdia.processing_service.flink.job.AnomalyJob</mainClass>
 								</transformer>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
 							</transformers>

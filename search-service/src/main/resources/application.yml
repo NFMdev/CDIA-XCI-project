@@ -8,7 +8,7 @@ spring:
         enabled: true
 
   elasticsearch:
-    uris: http://localhost:9200
+    uris: http://cdia-elasticsearch:9200
     username: elastic
     password: test
     connection-timeout: 5s

@@ -31,7 +31,7 @@ public class AnomalyJob {
 
         // CDC source
         JdbcIncrementalSource<Event> postgresSource = PostgresSourceBuilder.PostgresIncrementalSource.<Event>builder()
-                .hostname("localhost")
+                .hostname("postgres")
                 .port(5432)
                 .database("crime_analytics")
                 .schemaList("public")
@@ -61,7 +61,7 @@ public class AnomalyJob {
 
         // ES sink
         Elasticsearch8AsyncSink<EventAnomaly> sink = Elasticsearch8AsyncSinkBuilder.<EventAnomaly>builder()
-                .setHosts(HttpHost.create("http://localhost:9200"))
+                .setHosts(HttpHost.create("http://cdia-elasticsearch:9200"))
                 .setUsername("elastic")
                 .setPassword("test")
                 .setElementConverter(
